@@ -1,11 +1,10 @@
 import { createRoot } from 'react-dom/client';
 import App from '@src/app';
-// eslint-disable-next-line
-// @ts-ignore
+import styles from './styles/index.scss?inline';
 import tailwindcssOutput from '@src/tailwind-output.css?inline';
 
 const root = document.createElement('div');
-root.id = 'chrome-extension-boilerplate-react-vite-content-view-root';
+root.id = 'hz-root';
 
 document.body.append(root);
 
@@ -17,9 +16,8 @@ shadowRoot.appendChild(rootIntoShadow);
 
 /** Inject styles into shadow dom */
 const globalStyleSheet = new CSSStyleSheet();
-globalStyleSheet.replaceSync(tailwindcssOutput);
+globalStyleSheet.replaceSync(tailwindcssOutput + styles);
 
 shadowRoot.adoptedStyleSheets = [globalStyleSheet];
 shadowRoot.appendChild(rootIntoShadow);
-
 createRoot(rootIntoShadow).render(<App />);

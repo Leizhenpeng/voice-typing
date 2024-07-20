@@ -23,9 +23,10 @@
     "@chrome-extension-boilerplate/shared": "workspace:*"
   },
   "devDependencies": {
+    "@chrome-extension-boilerplate/hmr": "workspace:*",
     "@chrome-extension-boilerplate/tailwindcss-config": "workspace:*",
     "@chrome-extension-boilerplate/tsconfig": "workspace:*",
-    "@chrome-extension-boilerplate/hmr": "workspace:*",
-    "@chrome-extension-boilerplate/vite-config": "workspace:*"
+    "@chrome-extension-boilerplate/vite-config": "workspace:*",
+    "sass": "^1.77.8"
   }
 }
