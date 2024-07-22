@@ -20,13 +20,22 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@chrome-extension-boilerplate/shared": "workspace:*"
+    "@chrome-extension-boilerplate/shared": "workspace:*",
+    "@radix-ui/react-popover": "^1.1.1",
+    "@radix-ui/react-toggle": "^1.1.0",
+    "@radix-ui/react-toggle-group": "^1.1.0",
+    "@radix-ui/react-toolbar": "^1.1.0",
+    "@radix-ui/react-tooltip": "^1.1.2",
+    "classname-merge": "^0.0.2",
+    "react-rnd": "^10.4.11"
   },
   "devDependencies": {
     "@chrome-extension-boilerplate/hmr": "workspace:*",
     "@chrome-extension-boilerplate/tailwindcss-config": "workspace:*",
     "@chrome-extension-boilerplate/tsconfig": "workspace:*",
     "@chrome-extension-boilerplate/vite-config": "workspace:*",
-    "sass": "^1.77.8"
+    "content-ui-inject": "link:/Users/river/dev/tsPool/content-ui-inject",
+    "sass": "^1.77.8",
+    "vite-plugin-svgr": "^4.2.0"
   }
 }

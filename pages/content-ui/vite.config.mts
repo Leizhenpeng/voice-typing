@@ -1,6 +1,7 @@
 import { resolve } from 'path';
 import { makeEntryPointPlugin } from '@chrome-extension-boilerplate/hmr';
 import { withPageConfig, isDev } from '@chrome-extension-boilerplate/vite-config';
+import svgr from 'vite-plugin-svgr';
 
 const rootDir = resolve(__dirname);
 const srcDir = resolve(rootDir, 'src');
@@ -11,7 +12,7 @@ export default withPageConfig({
       '@src': srcDir,
     },
   },
-  plugins: [isDev && makeEntryPointPlugin()],
+  plugins: [isDev && makeEntryPointPlugin(), svgr()],
   publicDir: resolve(rootDir, 'public'),
   build: {
     lib: {

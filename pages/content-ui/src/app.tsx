@@ -1,9 +1,14 @@
 import { useEffect } from 'react';
-import Toolbar from './toolbar';
+import ToolbarWarp from './toolbar';
+import { ToolBarProvider } from './toolbar/context';
 export default function App() {
   useEffect(() => {
     console.log('content ui loaded');
   }, []);
 
-  return <Toolbar />;
+  return (
+    <ToolBarProvider>
+      <ToolbarWarp />
+    </ToolBarProvider>
+  );
 }
