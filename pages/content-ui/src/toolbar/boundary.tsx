@@ -1,6 +1,6 @@
 import { FunctionComponent } from 'react';
 import { cn } from 'classname-merge';
-import { useToolBar } from './context';
+import { useToolBar } from '../contexts/toolbar-context';
 
 const Boundary: FunctionComponent = () => {
   const { toolBarState } = useToolBar();

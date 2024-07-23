@@ -554,97 +554,58 @@ video {
   --tw-contain-style:  ;
 }
 
-.ml-0 {
-  margin-left: 0px;
+.container {
+  width: 100%;
 }
 
-.ml-0\.5 {
-  margin-left: 0.125rem;
+@media (min-width: 640px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 768px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    max-width: 1280px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px;
+  }
+}
+
+.block {
+  display: block;
 }
 
 .inline {
   display: inline;
 }
 
-.inline-flex {
-  display: inline-flex;
-}
-
 .hidden {
   display: none;
-}
-
-.h-\[25px\] {
-  height: 25px;
-}
-
-.flex-shrink-0 {
-  flex-shrink: 0;
-}
-
-.flex-grow-0 {
-  flex-grow: 0;
-}
-
-.basis-auto {
-  flex-basis: auto;
 }
 
 .resize {
   resize: both;
 }
 
-.items-center {
-  align-items: center;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
-.rounded {
-  border-radius: 0.25rem;
-}
-
-.bg-white {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
-.px-\[5px\] {
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.text-\[13px\] {
-  font-size: 13px;
-}
-
-.leading-none {
-  line-height: 1;
-}
-
-.outline-none {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-}
-
 #hz-root{
   /* 充满全屏 */
   height: 100vh;
   width: 100vw;
-}
-
-.first\:ml-0:first-child {
-  margin-left: 0px;
-}
-
-.focus\:relative:focus {
-  position: relative;
-}
-
-.focus\:shadow-\[0_0_0_2px\]:focus {
-  --tw-shadow: 0 0 0 2px;
-  --tw-shadow-colored: 0 0 0 2px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }

@@ -22,6 +22,7 @@ export interface ToolBarStyle {
 interface ToolBarState {
   position: ToolBarPosition;
   style: ToolBarStyle;
+  hideUI: boolean;
 }
 
 interface ToolBarContextProps {
@@ -45,6 +46,7 @@ const defaultToolBarState: ToolBarState = {
     hidden: false,
     side: 'ToolbarBottom',
   },
+  hideUI: false,
 };
 
 export const ToolBarContext = createContext<ToolBarContextProps | undefined>(undefined);
