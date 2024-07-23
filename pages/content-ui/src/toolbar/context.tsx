@@ -1,4 +1,6 @@
-import React, { createContext, useState, ReactNode, useContext } from 'react';
+import React, { createContext, useState, ReactNode, useContext, useEffect } from 'react';
+
+export type ToolBarSide = 'ToolbarTop' | 'ToolbarBottom';
 
 export interface ToolBarPosition {
   left: boolean;
@@ -14,6 +16,7 @@ export interface ToolBarStyle {
   elastic: boolean;
   hover: boolean;
   hidden: boolean;
+  side: ToolBarSide;
 }
 
 interface ToolBarState {
@@ -40,6 +43,7 @@ const defaultToolBarState: ToolBarState = {
     elastic: false,
     hover: false,
     hidden: false,
+    side: 'ToolbarBottom',
   },
 };
 
@@ -47,6 +51,23 @@ export const ToolBarContext = createContext<ToolBarContextProps | undefined>(und
 
 export const ToolBarProvider = ({ children }: { children: ReactNode }) => {
   const [toolBarState, setToolBarState] = useState<ToolBarState>(defaultToolBarState);
+  useEffect(() => {
+    chrome.storage.local.get(['toolBarState'], function (result) {
+      if (result.toolBarState) {
+        setToolBarState(result.toolBarState);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    chrome.storage.local.set({ toolBarState }, () => {
+      if (chrome.runtime.lastError) {
+        console.error('Error saving toolBarState:', chrome.runtime.lastError);
+      } else {
+        console.log('toolBarState saved successfully.');
+      }
+    });
+  }, [toolBarState]);
 
   return <ToolBarContext.Provider value={{ toolBarState, setToolBarState }}>{children}</ToolBarContext.Provider>;
 };

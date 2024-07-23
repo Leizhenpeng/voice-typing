@@ -25,6 +25,7 @@ const ToolbarWarp = () => {
             toolBarState.position.top ? 'ToolbarTop' : 'ToolbarBottom',
             toolBarState.style.hover && 'ToolbarTransparent',
             toolBarState.style.hidden && 'ForceTransparent',
+            toolBarState.style.side,
           )}>
           <Toolbar.ToggleGroup type="multiple" aria-label="Text formatting">
             <Toolbar.ToggleItem

@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState, forwardRef, RefObject } from 'react';
 import { Rnd } from 'react-rnd';
-import { useToolBar, ToolBarPosition } from './context';
+import { useToolBar, ToolBarPosition, ToolBarSide } from './context';
 import { cn } from 'classname-merge';
+import { produce } from 'immer';
 
 interface DraggableToolbarProps {
   children: React.ReactNode;
@@ -12,7 +13,6 @@ interface DraggableToolbarProps {
 const DraggableToolbar = forwardRef<HTMLDivElement, DraggableToolbarProps>(
   ({ children, onPositionChange }, ToolbarRef) => {
     const DragRef = useRef<Rnd>(null);
-    const [, setSide] = React.useState('ToolbarTop');
     const [dragging, setDragging] = useState('');
     const { toolBarState, setToolBarState } = useToolBar();
 
@@ -21,23 +21,26 @@ const DraggableToolbar = forwardRef<HTMLDivElement, DraggableToolbarProps>(
     };
 
     const updateShake = (shake = true) => {
-      setToolBarState(prevState => ({
-        ...prevState,
-        style: {
-          ...prevState.style,
-          shake,
-        },
-      }));
+      setToolBarState(prevState =>
+        produce(prevState, draft => {
+          draft.style.shake = shake;
+        }),
+      );
     };
 
     const updateElastic = (elastic = true) => {
-      setToolBarState(prevState => ({
-        ...prevState,
-        style: {
-          ...prevState.style,
-          elastic,
-        },
-      }));
+      setToolBarState(prevState =>
+        produce(prevState, draft => {
+          draft.style.elastic = elastic;
+        }),
+      );
+    };
+    const updateSide = (side: ToolBarSide) => {
+      setToolBarState(prevState =>
+        produce(prevState, draft => {
+          draft.style.side = side;
+        }),
+      );
     };
 
     const handleDrag = (e: any, d: { x: number; y: number }) => {
@@ -45,10 +48,11 @@ const DraggableToolbar = forwardRef<HTMLDivElement, DraggableToolbarProps>(
 
       const { width, height } = (ToolbarRef as RefObject<HTMLDivElement>).current!.getBoundingClientRect();
 
+      // 作用不清楚，后续去除
       if (d.y < 130) {
-        setSide('ToolbarBottom');
+        updateSide('ToolbarBottom');
       } else {
-        setSide('ToolbarTop');
+        updateSide('ToolbarTop');
       }
 
       if (d.x < -25 || d.x + width > window.innerWidth || d.y < 60 || d.y + height - 80 > window.innerHeight) {
@@ -69,9 +73,10 @@ const DraggableToolbar = forwardRef<HTMLDivElement, DraggableToolbarProps>(
       const { width, height } = (ToolbarRef as RefObject<HTMLDivElement>).current!.getBoundingClientRect();
 
       if (y < 130) {
-        setSide('ToolbarBottom');
+        console.log('ToolbarBottom');
+        updateSide('ToolbarBottom');
       } else {
-        setSide('ToolbarTop');
+        updateSide('ToolbarTop');
       }
 
       if (x < -10) {
