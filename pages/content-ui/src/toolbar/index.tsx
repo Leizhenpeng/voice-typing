@@ -14,6 +14,9 @@ import * as Toolbar from '@radix-ui/react-toolbar';
 import ToolTrigger from '@src/components/tool-triggle-wrap';
 import MicToggle from './mic-toggle';
 import CursorToolbar from './cursor-toolbar';
+import VoiceApp from './micfft';
+import Controls from './components/Controls';
+import { VoiceProvider } from '@humeai/voice-react';
 
 const ToolbarWarp = () => {
   const ToolbarRef = useRef<HTMLDivElement>(null);
@@ -36,13 +39,33 @@ const ToolbarWarp = () => {
             <AlterIcon />
           </ToolTrigger>
           <div className={'ToolbarRecordingControls'}>
-            <ToolTrigger type="button" content={chrome.i18n.getMessage('finishRecordingTooltip')}>
+            <VoiceApp />
+            <VoiceProvider
+              onMessage={() => {
+                if (timeout.current) {
+                  window.clearTimeout(timeout.current);
+                }
+
+                timeout.current = window.setTimeout(() => {
+                  if (ref.current) {
+                    const scrollHeight = ref.current.scrollHeight;
+
+                    ref.current.scrollTo({
+                      top: scrollHeight,
+                      behavior: 'smooth',
+                    });
+                  }
+                }, 200);
+              }}>
+              <Controls />
+            </VoiceProvider>
+            {/* <ToolTrigger type="button" content={chrome.i18n.getMessage('finishRecordingTooltip')}>
               <StopIcon width="20" height="20" />
             </ToolTrigger>
             <div className="ToolbarRecordingTime">{'22:22'}</div>
             <ToolTrigger type="button" content={chrome.i18n.getMessage('restartRecordingTooltip')}>
               <RestartIcon />
-            </ToolTrigger>
+            </ToolTrigger> */}
             {!false && (
               <ToolTrigger type="button" content={chrome.i18n.getMessage('pauseRecordingTooltip')}>
                 <PauseIcon />
