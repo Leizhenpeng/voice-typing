@@ -11,6 +11,7 @@ const AudioRecorder = () => {
   const analyserRef = useRef(null);
   const dataArrayRef = useRef(null);
   const bufferLengthRef = useRef(null);
+  const streamRef = useRef(null);
 
   useEffect(() => {
     if (recording) {
@@ -21,10 +22,12 @@ const AudioRecorder = () => {
       stopVisualizer();
     }
   }, [recording]);
+
   const startRecording = async () => {
     try {
       console.log('Requesting audio stream');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
       analyserRef.current = audioContextRef.current.createAnalyser();
       analyserRef.current.fftSize = 64; // 设置FFT大小
@@ -54,12 +57,18 @@ const AudioRecorder = () => {
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current) {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
       setRecording(false);
       console.log('Recording stopped');
+      stopVisualizer();
+      // 清理流
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
     } else {
-      console.error('MediaRecorder is not initialized.');
+      console.log('MediaRecorder is not active.');
     }
   };
 
@@ -69,7 +78,6 @@ const AudioRecorder = () => {
       if (analyserRef.current) {
         analyserRef.current.getByteFrequencyData(dataArrayRef.current);
         const fftDataArray = Array.from(dataArrayRef.current).slice(0, 24);
-        console.log('FFT Data:', fftDataArray); // Display FFT data in console
         setFftData(fftDataArray);
         requestAnimationFrame(draw);
       } else {
@@ -80,7 +88,7 @@ const AudioRecorder = () => {
   };
 
   const stopVisualizer = () => {
-    setFftData(new Array(24).fill(0));
+    setFftData(Array(24).fill(0)); // 重置为零
   };
 
   return (
@@ -93,12 +101,6 @@ const AudioRecorder = () => {
       <div className="h-[48px] w-full mt-4">
         <MicFFT fft={fftData} />
       </div>
-      {audioUrl && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold">Recorded Audio:</h3>
-          <audio controls src={audioUrl} className="mt-2"></audio>
-        </div>
-      )}
     </div>
   );
 };

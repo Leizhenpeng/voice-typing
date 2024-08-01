@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { AutoSizer } from 'react-virtualized';
 
 export default function MicFFT({ fft, className }: { fft: number[]; className?: string }) {
+  console.log('MicFFT received fft data:', fft); // 调试信息
+
   return (
     <div className={'relative size-full'}>
       <AutoSizer>

@@ -1,10 +1,10 @@
 import { useRef } from 'react';
 import AlterIcon from '@src/icons/grab.svg?react';
-import StopIcon from '@src/icons/stop.svg?react';
-import RestartIcon from '@src/icons/restart.svg?react';
-import PauseIcon from '@src/icons/pause.svg?react';
-import ResumeIcon from '@src/icons/resume.svg?react';
-import DiscardIcon from '@src/icons/discard.svg?react';
+// import StopIcon from '@src/icons/stop.svg?react';
+// import RestartIcon from '@src/icons/restart.svg?react';
+// import PauseIcon from '@src/icons/pause.svg?react';
+// import ResumeIcon from '@src/icons/resume.svg?react';
+// import DiscardIcon from '@src/icons/discard.svg?react';
 import CursorIcon from '@src/icons/cursor.svg?react';
 import Boundary from './boundary';
 import { useToolBar } from '../contexts/toolbar-context';
