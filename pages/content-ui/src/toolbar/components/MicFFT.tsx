@@ -5,35 +5,41 @@ import { motion } from 'framer-motion';
 import { AutoSizer } from 'react-virtualized';
 
 export default function MicFFT({ fft, className }: { fft: number[]; className?: string }) {
-  console.log('MicFFT received fft data:', fft); // 调试信息
-
   return (
-    <div className={'relative size-full'}>
+    <div className="relative w-full h-full">
       <AutoSizer>
-        {({ width, height }) => (
-          <motion.svg
-            viewBox={`0 0 ${width} ${height}`}
-            width={width}
-            height={height}
-            className={cn('absolute !inset-0 !size-full', className)}>
-            {Array.from({ length: 24 }).map((_, index) => {
-              const value = (fft[index] ?? 0) / 4;
-              const h = Math.min(Math.max(height * value, 2), height);
-              const yOffset = height * 0.5 - h * 0.5;
+        {({ width, height }) => {
+          // 设定条形图的最大高度
+          const maxBarHeight = 36;
 
-              return (
-                <motion.rect
-                  key={`mic-fft-${index}`}
-                  height={h}
-                  width={2}
-                  x={2 + (index * width - 4) / 24}
-                  y={yOffset}
-                  rx={4}
-                />
-              );
-            })}
-          </motion.svg>
-        )}
+          return (
+            <motion.svg
+              viewBox={`0 0 ${width} ${height}`}
+              width={width}
+              height={height}
+              className={cn('absolute inset-0', className)}>
+              {fft.map((value, index) => {
+                // 计算条形图的高度，并应用最大高度限制
+                const h = Math.min(Math.max(height * value, 2), maxBarHeight);
+                const yOffset = height * 0.5 - h * 0.5;
+                const barWidth = 4; // 增加条形图的宽度
+                const barSpacing = 2; // 缩小条形之间的距离
+
+                return (
+                  <motion.rect
+                    key={`mic-fft-${index}`}
+                    height={h}
+                    width={barWidth}
+                    x={index * (barWidth + barSpacing)}
+                    y={yOffset}
+                    rx={2}
+                    className="text-blue-500 fill-current"
+                  />
+                );
+              })}
+            </motion.svg>
+          );
+        }}
       </AutoSizer>
     </div>
   );
