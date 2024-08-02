@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import AlterIcon from '@src/icons/grab.svg?react';
 // import StopIcon from '@src/icons/stop.svg?react';
 // import RestartIcon from '@src/icons/restart.svg?react';
@@ -19,9 +19,13 @@ import AudioRecorder from './AudioRecorder';
 const ToolbarWarp = () => {
   const ToolbarRef = useRef<HTMLDivElement>(null);
   const { toolBarState } = useToolBar();
+  const [transcript, setTranscript] = useState('');
 
   return (
     <div className="toolbar-page">
+      <div className="fixed bottom-10 w-full text-center text-3xl py-2 rounded z-50">
+        <span className="text-black">{transcript}</span>
+      </div>
       <Boundary />
       <DraggableToolbar ref={ToolbarRef}>
         <Toolbar.Root
@@ -37,7 +41,7 @@ const ToolbarWarp = () => {
             <AlterIcon />
           </ToolTrigger>
           <div className={'ToolbarRecordingControls'}>
-            <AudioRecorder />
+            <AudioRecorder onFinalTranscript={setTranscript} />
             {/* <ToolTrigger type="button" content={chrome.i18n.getMessage('finishRecordingTooltip')}>
               <StopIcon width="20" height="20" />
             </ToolTrigger>

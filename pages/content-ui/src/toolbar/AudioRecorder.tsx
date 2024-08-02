@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import MicFFT from './components/MicFFT';
 
-const AudioRecorder = () => {
+const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: () => void }) => {
   const [recording, setRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState('');
   const [fftData, setFftData] = useState(new Array(24).fill(0));
@@ -12,12 +12,15 @@ const AudioRecorder = () => {
   const dataArrayRef = useRef(null);
   const bufferLengthRef = useRef(null);
   const streamRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   useEffect(() => {
     if (recording) {
       startVisualizer();
+      startSpeechRecognition();
     } else {
       stopVisualizer();
+      stopSpeechRecognition();
     }
   }, [recording]);
 
@@ -27,7 +30,7 @@ const AudioRecorder = () => {
       streamRef.current = stream;
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
       analyserRef.current = audioContextRef.current.createAnalyser();
-      analyserRef.current.fftSize = 64; // 设置FFT大小，适中
+      analyserRef.current.fftSize = 64;
       const source = audioContextRef.current.createMediaStreamSource(stream);
       source.connect(analyserRef.current);
 
@@ -71,12 +74,9 @@ const AudioRecorder = () => {
       if (!recording) return;
       if (analyserRef.current) {
         analyserRef.current.getByteFrequencyData(dataArrayRef.current);
-
-        // 对数据进行适当的比例缩放
         const normalizedData = Array.from(dataArrayRef.current)
           .slice(0, 24)
           .map(value => value / 256);
-
         setFftData(normalizedData);
         requestAnimationFrame(draw);
       }
@@ -86,6 +86,57 @@ const AudioRecorder = () => {
 
   const stopVisualizer = () => {
     setFftData(new Array(24).fill(0));
+  };
+
+  const startSpeechRecognition = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      console.error('Web Speech API is not supported by this browser.');
+      return;
+    }
+
+    recognitionRef.current = new webkitSpeechRecognition();
+    recognitionRef.current.continuous = true;
+    recognitionRef.current.interimResults = true;
+    recognitionRef.current.lang = 'zh-CN';
+
+    recognitionRef.current.onstart = () => {
+      console.log('Speech recognition started.');
+    };
+
+    recognitionRef.current.onerror = event => {
+      console.error('Speech recognition error:', event.error);
+    };
+
+    recognitionRef.current.onend = () => {
+      console.log('Speech recognition ended.');
+      if (recording) {
+        recognitionRef.current.start(); // 重新启动语音识别
+      }
+    };
+
+    recognitionRef.current.onresult = event => {
+      let final_transcript = '';
+      let interim_transcript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          final_transcript += event.results[i][0].transcript;
+        } else {
+          interim_transcript += event.results[i][0].transcript;
+        }
+      }
+      console.log('Final transcript:', final_transcript);
+      console.log('Interim transcript:', interim_transcript);
+      onFinalTranscript(interim_transcript);
+    };
+
+    recognitionRef.current.start();
+  };
+
+  const stopSpeechRecognition = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
   };
 
   return (
