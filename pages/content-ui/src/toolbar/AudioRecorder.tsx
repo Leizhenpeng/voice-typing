@@ -1,38 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
 import MicFFT from './components/MicFFT';
 
-const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: () => void }) => {
+const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: (text: string) => void }) => {
   const [recording, setRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState('');
   const [fftData, setFftData] = useState(new Array(24).fill(0));
-  const audioContextRef = useRef(null);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const analyserRef = useRef(null);
-  const dataArrayRef = useRef(null);
-  const bufferLengthRef = useRef(null);
-  const streamRef = useRef(null);
-  const recognitionRef = useRef(null);
+  const [useApiTranscription, setUseApiTranscription] = useState(false);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const dataArrayRef = useRef<Uint8Array | null>(null);
+  const bufferLengthRef = useRef<number | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const recognitionRef = useRef<webkitSpeechRecognition | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     if (recording) {
       startVisualizer();
-      startSpeechRecognition();
+      if (useApiTranscription) {
+        stopSpeechRecognition();
+      } else {
+        startSpeechRecognition();
+      }
     } else {
       stopVisualizer();
       stopSpeechRecognition();
     }
-  }, [recording]);
+  }, [recording, useApiTranscription]);
 
   const startRecording = async () => {
     try {
-      // 列出所有可用设备
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const audioInputDevices = devices.filter(device => device.kind === 'audioinput');
-      if (audioInputDevices.length === 0) {
-        throw new Error('No audio input devices found');
-      }
-
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -44,14 +42,16 @@ const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: () => void })
       bufferLengthRef.current = analyserRef.current.frequencyBinCount;
       dataArrayRef.current = new Uint8Array(bufferLengthRef.current);
 
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       mediaRecorderRef.current.ondataavailable = event => {
         audioChunksRef.current.push(event.data);
       };
       mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
-        setAudioUrl(URL.createObjectURL(audioBlob));
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/mp3' });
         audioChunksRef.current = [];
+        if (useApiTranscription) {
+          sendAudioToApi(audioBlob);
+        }
       };
       mediaRecorderRef.current.start();
       setRecording(true);
@@ -65,15 +65,39 @@ const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: () => void })
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
       setRecording(false);
+
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
         streamRef.current = null;
       }
+
       if (audioContextRef.current) {
         audioContextRef.current.close();
         audioContextRef.current = null;
       }
+
       stopVisualizer();
+    }
+  };
+
+  const sendAudioToApi = async (blob: Blob) => {
+    const formData = new FormData();
+    formData.append('file', blob, 'openai.mp3');
+    formData.append('model', 'whisper-1');
+
+    try {
+      const response = await fetch('https://api.openai-next.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: {
+          Authorization: 'Bearer sk-LBs25iYvnWaiktU0AdEe23601dB5419fA7Ed9439F9Eb53Bf',
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      onFinalTranscript(data.text);
+    } catch (error) {
+      console.error('Error uploading audio:', error);
     }
   };
 
@@ -156,6 +180,15 @@ const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: () => void })
         className={`px-2 py-1 rounded ${recording ? 'bg-red-500' : 'bg-green-500'} text-white mr-2`}>
         {recording ? 'Stop' : 'Start'}
       </button>
+      <label className="flex items-center">
+        <input
+          type="checkbox"
+          checked={useApiTranscription}
+          onChange={() => setUseApiTranscription(!useApiTranscription)}
+          className="mr-2"
+        />
+        Use API
+      </label>
       <div className="w-36 h-12">
         <MicFFT fft={fftData} className="fill-current text-blue-500" />
       </div>
