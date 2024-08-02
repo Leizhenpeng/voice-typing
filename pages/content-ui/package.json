@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@chrome-extension-boilerplate/shared": "workspace:*",
-    "@humeai/voice-react": "0.1.11-beta.5",
     "@radix-ui/react-popover": "^1.1.1",
     "@radix-ui/react-toggle": "^1.1.0",
     "@radix-ui/react-toggle-group": "^1.1.0",
@@ -32,8 +31,6 @@
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.19",
     "immer": "^10.1.1",
-    "lucide-react": "^0.418.0",
-    "react-mic": "^12.4.6",
     "react-rnd": "^10.4.11",
     "react-virtualized": "^9.22.5",
     "tailwind-merge": "^2.4.0"
