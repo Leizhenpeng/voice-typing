@@ -26,6 +26,13 @@ const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: () => void })
 
   const startRecording = async () => {
     try {
+      // 列出所有可用设备
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audioInputDevices = devices.filter(device => device.kind === 'audioinput');
+      if (audioInputDevices.length === 0) {
+        throw new Error('No audio input devices found');
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -50,6 +57,7 @@ const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: () => void })
       setRecording(true);
     } catch (err) {
       console.error('Failed to start recording:', err);
+      alert('Failed to start recording: ' + err.message);
     }
   };
 
@@ -69,6 +77,7 @@ const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: () => void })
     }
   };
 
+  // 条形图
   const startVisualizer = () => {
     const draw = () => {
       if (!recording) return;
@@ -88,6 +97,7 @@ const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: () => void })
     setFftData(new Array(24).fill(0));
   };
 
+  // Chrome Speech Recognition API
   const startSpeechRecognition = () => {
     if (!('webkitSpeechRecognition' in window)) {
       console.error('Web Speech API is not supported by this browser.');
@@ -110,7 +120,7 @@ const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: () => void })
     recognitionRef.current.onend = () => {
       console.log('Speech recognition ended.');
       if (recording) {
-        recognitionRef.current.start(); // 重新启动语音识别
+        recognitionRef.current.start();
       }
     };
 
