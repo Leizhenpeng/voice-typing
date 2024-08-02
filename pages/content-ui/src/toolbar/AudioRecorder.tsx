@@ -1,11 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import MicFFT from './components/MicFFT';
 
-const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: (text: string) => void }) => {
+const AudioRecorder = ({
+  onFinalTranscript,
+  useApiTranscription,
+}: {
+  onFinalTranscript: (text: string) => void;
+  useApiTranscription: boolean;
+}) => {
   const [recording, setRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState('');
   const [fftData, setFftData] = useState(new Array(24).fill(0));
-  const [useApiTranscription, setUseApiTranscription] = useState(false);
+  // const [useApiTranscription, setUseApiTranscription] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -180,15 +186,6 @@ const AudioRecorder = ({ onFinalTranscript }: { onFinalTranscript: (text: string
         className={`px-2 py-1 rounded ${recording ? 'bg-red-500' : 'bg-green-500'} text-white mr-2`}>
         {recording ? 'Stop' : 'Start'}
       </button>
-      <label className="flex items-center">
-        <input
-          type="checkbox"
-          checked={useApiTranscription}
-          onChange={() => setUseApiTranscription(!useApiTranscription)}
-          className="mr-2"
-        />
-        Use API
-      </label>
       <div className="w-36 h-12">
         <MicFFT fft={fftData} className="fill-current text-blue-500" />
       </div>

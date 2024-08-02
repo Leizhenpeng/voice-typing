@@ -20,6 +20,7 @@ const ToolbarWarp = () => {
   const ToolbarRef = useRef<HTMLDivElement>(null);
   const { toolBarState } = useToolBar();
   const [transcript, setTranscript] = useState('');
+  const [useApiTranscription, setUseApiTranscription] = useState(true);
 
   return (
     <div className="toolbar-page">
@@ -41,7 +42,7 @@ const ToolbarWarp = () => {
             <AlterIcon />
           </ToolTrigger>
           <div className={'ToolbarRecordingControls'}>
-            <AudioRecorder onFinalTranscript={setTranscript} />
+            <AudioRecorder onFinalTranscript={setTranscript} useApiTranscription={useApiTranscription} />
             {/* <ToolTrigger type="button" content={chrome.i18n.getMessage('finishRecordingTooltip')}>
               <StopIcon width="20" height="20" />
             </ToolTrigger>
@@ -71,7 +72,7 @@ const ToolbarWarp = () => {
 
                 {<CursorIcon />}
               </ToolTrigger>
-              <CursorToolbar visible={false} setMode={() => {}} />
+              <CursorToolbar visible={true} setMode={setUseApiTranscription} />
             </div>
           </Toolbar.ToggleGroup>
 
