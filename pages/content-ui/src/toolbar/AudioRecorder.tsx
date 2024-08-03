@@ -37,28 +37,23 @@ const AudioRecorder = ({
   }, [recording, useApiTranscription]);
 
   const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      streamRef.current = stream;
-      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-      analyserRef.current = audioContextRef.current.createAnalyser();
-      analyserRef.current.fftSize = 64;
-      const source = audioContextRef.current.createMediaStreamSource(stream);
-      source.connect(analyserRef.current);
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    streamRef.current = stream;
+    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    analyserRef.current = audioContextRef.current.createAnalyser();
+    analyserRef.current.fftSize = 64;
+    const source = audioContextRef.current.createMediaStreamSource(stream);
+    source.connect(analyserRef.current);
 
-      bufferLengthRef.current = analyserRef.current.frequencyBinCount;
-      dataArrayRef.current = new Uint8Array(bufferLengthRef.current);
+    bufferLengthRef.current = analyserRef.current.frequencyBinCount;
+    dataArrayRef.current = new Uint8Array(bufferLengthRef.current);
 
-      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-      mediaRecorderRef.current.ondataavailable = event => {
-        audioChunksRef.current.push(event.data);
-      };
-      mediaRecorderRef.current.start();
-      setRecording(true);
-    } catch (err) {
-      console.error('Failed to start recording:', err);
-      alert('Failed to start recording: ' + err.message);
-    }
+    mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+    mediaRecorderRef.current.ondataavailable = event => {
+      audioChunksRef.current.push(event.data);
+    };
+    mediaRecorderRef.current.start();
+    setRecording(true);
   };
 
   const stopRecording = () => {
@@ -105,7 +100,8 @@ const AudioRecorder = ({
     analyser.fftSize = 2048;
     const bufferLength = analyser.fftSize;
     const dataArray = new Uint8Array(bufferLength);
-    const checkVolume = throttle(() => {
+
+    const processVolume = throttle(async () => {
       analyser.getByteTimeDomainData(dataArray);
       let sum = 0;
       for (let i = 0; i < bufferLength; i++) {
@@ -113,21 +109,19 @@ const AudioRecorder = ({
         sum += value * value;
       }
       const volume = Math.sqrt(sum / bufferLength);
-      if (volume < 0.01) {
+
+      if (volume < 0.02) {
         if (!silenceTimeoutRef.current) {
           silenceTimeoutRef.current = setTimeout(async () => {
             if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
               mediaRecorderRef.current.requestData();
-              mediaRecorderRef.current.pause();
-              const audioBlob = new Blob(audioChunksRef.current, {
-                type: 'audio/webm',
-              });
+              const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+              console.log('Audio blob:', audioBlob);
               audioChunksRef.current = [];
               await sendAudioToApi(audioBlob);
-              mediaRecorderRef.current.resume();
             }
             silenceTimeoutRef.current = null;
-          }, 2000);
+          }, 1500);
         }
       } else {
         if (silenceTimeoutRef.current) {
@@ -135,11 +129,13 @@ const AudioRecorder = ({
           silenceTimeoutRef.current = null;
         }
       }
+
       if (recording) {
-        requestAnimationFrame(checkVolume);
+        requestAnimationFrame(processVolume);
       }
     }, 100);
-    checkVolume();
+
+    processVolume();
   };
 
   // 条形图
