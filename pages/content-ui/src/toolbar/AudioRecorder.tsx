@@ -82,7 +82,8 @@ const AudioRecorder = ({
 
   const sendAudioToApi = async (blob: Blob) => {
     const formData = new FormData();
-    formData.append('file', blob, 'openai.wav');
+    formData.append('file', blob, 'openai.webm');
+    formData.append('model', 'whisper-1');
 
     try {
       const response = await axios.post('https://api.openai-next.com/v1/audio/transcriptions', formData, {
