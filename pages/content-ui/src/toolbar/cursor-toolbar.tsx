@@ -15,7 +15,7 @@ const CursorToolbar: React.FC<CursorToolbarProps> = ({ setMode }) => {
   // 默认选择 highlight 模型
   React.useEffect(() => {
     setMode(true);
-  }, [setMode]);
+  }, []);
 
   return (
     <Toolbar.Root className={'DrawingToolbar' + ' ' + 'show-toolbar'} aria-label="Cursor options" tabIndex={0}>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import MicFFT from './components/MicFFT';
+import { throttle } from 'lodash-es';
+import axios from 'axios';
 
 const AudioRecorder = ({
   onFinalTranscript,
@@ -9,9 +11,7 @@ const AudioRecorder = ({
   useApiTranscription: boolean;
 }) => {
   const [recording, setRecording] = useState(false);
-  const [audioUrl, setAudioUrl] = useState('');
   const [fftData, setFftData] = useState(new Array(24).fill(0));
-  // const [useApiTranscription, setUseApiTranscription] = useState(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -20,12 +20,13 @@ const AudioRecorder = ({
   const streamRef = useRef<MediaStream | null>(null);
   const recognitionRef = useRef<webkitSpeechRecognition | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const silenceTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (recording) {
       startVisualizer();
       if (useApiTranscription) {
-        stopSpeechRecognition();
+        monitorVolume();
       } else {
         startSpeechRecognition();
       }
@@ -51,13 +52,6 @@ const AudioRecorder = ({
       mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       mediaRecorderRef.current.ondataavailable = event => {
         audioChunksRef.current.push(event.data);
-      };
-      mediaRecorderRef.current.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/mp3' });
-        audioChunksRef.current = [];
-        if (useApiTranscription) {
-          sendAudioToApi(audioBlob);
-        }
       };
       mediaRecorderRef.current.start();
       setRecording(true);
@@ -88,23 +82,63 @@ const AudioRecorder = ({
 
   const sendAudioToApi = async (blob: Blob) => {
     const formData = new FormData();
-    formData.append('file', blob, 'openai.mp3');
-    formData.append('model', 'whisper-1');
+    formData.append('file', blob, 'openai.wav');
 
     try {
-      const response = await fetch('https://api.openai-next.com/v1/audio/transcriptions', {
-        method: 'POST',
+      const response = await axios.post('https://api.openai-next.com/v1/audio/transcriptions', formData, {
         headers: {
           Authorization: 'Bearer sk-LBs25iYvnWaiktU0AdEe23601dB5419fA7Ed9439F9Eb53Bf',
+          'Content-Type': 'multipart/form-data',
         },
-        body: formData,
       });
 
-      const data = await response.json();
-      onFinalTranscript(data.text);
+      onFinalTranscript(response.data.text);
     } catch (error) {
       console.error('Error uploading audio:', error);
     }
+  };
+
+  const monitorVolume = () => {
+    const analyser = analyserRef.current;
+    if (!analyser) return;
+    analyser.fftSize = 2048;
+    const bufferLength = analyser.fftSize;
+    const dataArray = new Uint8Array(bufferLength);
+    const checkVolume = throttle(() => {
+      analyser.getByteTimeDomainData(dataArray);
+      let sum = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        const value = (dataArray[i] - 128) / 128;
+        sum += value * value;
+      }
+      const volume = Math.sqrt(sum / bufferLength);
+      if (volume < 0.01) {
+        if (!silenceTimeoutRef.current) {
+          silenceTimeoutRef.current = setTimeout(async () => {
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+              mediaRecorderRef.current.requestData();
+              mediaRecorderRef.current.pause();
+              const audioBlob = new Blob(audioChunksRef.current, {
+                type: 'audio/webm',
+              });
+              audioChunksRef.current = [];
+              await sendAudioToApi(audioBlob);
+              mediaRecorderRef.current.resume();
+            }
+            silenceTimeoutRef.current = null;
+          }, 2000);
+        }
+      } else {
+        if (silenceTimeoutRef.current) {
+          clearTimeout(silenceTimeoutRef.current);
+          silenceTimeoutRef.current = null;
+        }
+      }
+      if (recording) {
+        requestAnimationFrame(checkVolume);
+      }
+    }, 100);
+    checkVolume();
   };
 
   // 条形图
