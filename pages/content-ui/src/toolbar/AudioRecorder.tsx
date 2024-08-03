@@ -115,7 +115,7 @@ const AudioRecorder = ({
           silenceTimeoutRef.current = setTimeout(async () => {
             if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
               mediaRecorderRef.current.requestData();
-              const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+              const audioBlob = new Blob(audioChunksRef.current);
               console.log('Audio blob:', audioBlob);
               audioChunksRef.current = [];
               await sendAudioToApi(audioBlob);

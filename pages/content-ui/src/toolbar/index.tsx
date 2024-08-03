@@ -24,8 +24,14 @@ const ToolbarWarp = () => {
 
   return (
     <div className="toolbar-page">
-      <div className="fixed bottom-10 w-full text-center text-3xl py-2 rounded z-50">
-        <span className="text-black">{transcript}</span>
+      <div className="fixed bottom-10 w-full" style={{ display: 'flex', justifyContent: 'center' }}>
+        {transcript && (
+          <div
+            className="text-center text-2xl z-50"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', display: 'inline-block', padding: 8, borderRadius: 10 }}>
+            <span className="text-white">{transcript}</span>
+          </div>
+        )}
       </div>
       <Boundary />
       <DraggableToolbar ref={ToolbarRef}>
