@@ -6,11 +6,11 @@ import { AutoSizer } from 'react-virtualized';
 
 export default function MicFFT({ fft, className }: { fft: number[]; className?: string }) {
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full flex items-center justify-center">
       <AutoSizer>
         {({ width, height }) => {
           // 设定条形图的最大高度
-          const maxBarHeight = 36;
+          const maxBarHeight = 28;
 
           return (
             <motion.svg

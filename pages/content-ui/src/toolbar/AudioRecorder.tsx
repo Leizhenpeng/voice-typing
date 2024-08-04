@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import MicFFT from './components/MicFFT';
-import { throttle } from 'lodash-es';
+import { debounce } from 'lodash-es';
 import axios from 'axios';
+import PauseIcon from '@src/icons/pause.svg?react';
+import ResumeIcon from '@src/icons/resume.svg?react';
 
 const AudioRecorder = ({
   onFinalTranscript,
@@ -101,7 +103,7 @@ const AudioRecorder = ({
     const bufferLength = analyser.fftSize;
     const dataArray = new Uint8Array(bufferLength);
 
-    const processVolume = throttle(async () => {
+    const processVolume = debounce(async () => {
       analyser.getByteTimeDomainData(dataArray);
       let sum = 0;
       for (let i = 0; i < bufferLength; i++) {
@@ -112,7 +114,7 @@ const AudioRecorder = ({
 
       if (volume < 0.02) {
         if (!silenceTimeoutRef.current) {
-          silenceTimeoutRef.current = setTimeout(async () => {
+          silenceTimeoutRef.current = window.setTimeout(async () => {
             if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
               mediaRecorderRef.current.requestData();
               mediaRecorderRef.current.ondataavailable = async event => {
@@ -125,21 +127,25 @@ const AudioRecorder = ({
               };
             }
             silenceTimeoutRef.current = null;
-          }, 1500);
+          }, 1000);
         }
       } else {
-        if (silenceTimeoutRef.current) {
-          clearTimeout(silenceTimeoutRef.current);
-          silenceTimeoutRef.current = null;
-        }
+        resetSilenceTimeout();
       }
 
       if (recording) {
         requestAnimationFrame(processVolume);
       }
-    }, 100);
+    }, 300);
 
     processVolume();
+  };
+
+  const resetSilenceTimeout = () => {
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+      silenceTimeoutRef.current = null;
+    }
   };
 
   // 条形图
@@ -192,6 +198,8 @@ const AudioRecorder = ({
     recognitionRef.current.onresult = event => {
       let final_transcript = '';
       let interim_transcript = '';
+      const maxInterimLength = 30; // 最大中间结果长度，以字数为单位
+
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           final_transcript += event.results[i][0].transcript;
@@ -199,6 +207,12 @@ const AudioRecorder = ({
           interim_transcript += event.results[i][0].transcript;
         }
       }
+
+      // 如果 interim_transcript 超过 maxInterimLength，清除之前的内容
+      if (interim_transcript.length > maxInterimLength) {
+        interim_transcript = interim_transcript.slice(-maxInterimLength);
+      }
+
       console.log('Final transcript:', final_transcript);
       console.log('Interim transcript:', interim_transcript);
       onFinalTranscript(interim_transcript);
@@ -215,13 +229,13 @@ const AudioRecorder = ({
   };
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center h-[36px]">
       <button
         onClick={recording ? stopRecording : startRecording}
-        className={`px-2 py-1 rounded ${recording ? 'bg-red-500' : 'bg-green-500'} text-white mr-2`}>
-        {recording ? 'Stop' : 'Start'}
+        className={`p-2 rounded-full ${recording ? 'bg-red-500' : 'bg-green-500'} text-white mr-2`}>
+        {recording ? <PauseIcon /> : <ResumeIcon />}
       </button>
-      <div className="w-36 h-12">
+      <div className="w-36 h-8">
         <MicFFT fft={fftData} className="fill-current text-blue-500" />
       </div>
     </div>
