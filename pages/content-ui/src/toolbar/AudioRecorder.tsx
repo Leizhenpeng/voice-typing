@@ -87,7 +87,7 @@ const AudioRecorder = ({
           'Content-Type': 'multipart/form-data',
         },
       });
-
+      console.log('API response:', response.data);
       onFinalTranscript(response.data.text);
     } catch (error) {
       console.error('Error uploading audio:', error);
@@ -115,10 +115,14 @@ const AudioRecorder = ({
           silenceTimeoutRef.current = setTimeout(async () => {
             if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
               mediaRecorderRef.current.requestData();
-              const audioBlob = new Blob(audioChunksRef.current);
-              console.log('Audio blob:', audioBlob);
-              audioChunksRef.current = [];
-              await sendAudioToApi(audioBlob);
+              mediaRecorderRef.current.ondataavailable = async event => {
+                audioChunksRef.current.push(event.data);
+                const audioBlob = new Blob(audioChunksRef.current);
+                console.log('Audio blob size:', audioBlob.size);
+                console.log('Audio chunks:', audioChunksRef.current);
+                audioChunksRef.current = [];
+                await sendAudioToApi(audioBlob);
+              };
             }
             silenceTimeoutRef.current = null;
           }, 1500);
