@@ -1,10 +1,10 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import AlterIcon from '@src/icons/grab.svg?react';
-import StopIcon from '@src/icons/stop.svg?react';
-import RestartIcon from '@src/icons/restart.svg?react';
-import PauseIcon from '@src/icons/pause.svg?react';
-import ResumeIcon from '@src/icons/resume.svg?react';
-import DiscardIcon from '@src/icons/discard.svg?react';
+// import StopIcon from '@src/icons/stop.svg?react';
+// import RestartIcon from '@src/icons/restart.svg?react';
+// import PauseIcon from '@src/icons/pause.svg?react';
+// import ResumeIcon from '@src/icons/resume.svg?react';
+// import DiscardIcon from '@src/icons/discard.svg?react';
 import CursorIcon from '@src/icons/cursor.svg?react';
 import Boundary from './boundary';
 import { useToolBar } from '../contexts/toolbar-context';
@@ -14,13 +14,25 @@ import * as Toolbar from '@radix-ui/react-toolbar';
 import ToolTrigger from '@src/components/tool-triggle-wrap';
 import MicToggle from './mic-toggle';
 import CursorToolbar from './cursor-toolbar';
+import AudioRecorder from './AudioRecorder';
 
 const ToolbarWarp = () => {
   const ToolbarRef = useRef<HTMLDivElement>(null);
   const { toolBarState } = useToolBar();
+  const [transcript, setTranscript] = useState('');
+  const [useApiTranscription, setUseApiTranscription] = useState(true);
 
   return (
     <div className="toolbar-page">
+      <div className="fixed bottom-10 w-full" style={{ display: 'flex', justifyContent: 'center' }}>
+        {transcript && (
+          <div
+            className="text-center text-2xl z-50"
+            style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', display: 'inline-block', padding: 8, borderRadius: 10 }}>
+            <span className="text-white">{transcript}</span>
+          </div>
+        )}
+      </div>
       <Boundary />
       <DraggableToolbar ref={ToolbarRef}>
         <Toolbar.Root
@@ -36,14 +48,15 @@ const ToolbarWarp = () => {
             <AlterIcon />
           </ToolTrigger>
           <div className={'ToolbarRecordingControls'}>
-            <ToolTrigger type="button" content={chrome.i18n.getMessage('finishRecordingTooltip')}>
+            <AudioRecorder onFinalTranscript={setTranscript} useApiTranscription={useApiTranscription} />
+            {/* <ToolTrigger type="button" content={chrome.i18n.getMessage('finishRecordingTooltip')}>
               <StopIcon width="20" height="20" />
             </ToolTrigger>
             <div className="ToolbarRecordingTime">{'22:22'}</div>
             <ToolTrigger type="button" content={chrome.i18n.getMessage('restartRecordingTooltip')}>
               <RestartIcon />
-            </ToolTrigger>
-            {!false && (
+            </ToolTrigger> */}
+            {/* {!false && (
               <ToolTrigger type="button" content={chrome.i18n.getMessage('pauseRecordingTooltip')}>
                 <PauseIcon />
               </ToolTrigger>
@@ -55,7 +68,7 @@ const ToolbarWarp = () => {
             )}
             <ToolTrigger type="button" content={chrome.i18n.getMessage('cancelRecordingTooltip')}>
               <DiscardIcon />
-            </ToolTrigger>
+            </ToolTrigger> */}
           </div>
           <Toolbar.Separator className="ToolbarSeparator" />
           <Toolbar.ToggleGroup type="single" className="ToolbarToggleGroup" value={''} onValueChange={() => {}}>
@@ -65,7 +78,7 @@ const ToolbarWarp = () => {
 
                 {<CursorIcon />}
               </ToolTrigger>
-              <CursorToolbar visible={false} setMode={() => {}} />
+              <CursorToolbar visible={true} setMode={setUseApiTranscription} />
             </div>
           </Toolbar.ToggleGroup>
 

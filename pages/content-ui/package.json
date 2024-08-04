@@ -26,16 +26,23 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-toolbar": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.2",
+    "axios": "^1.7.3",
+    "class-variance-authority": "^0.7.0",
     "classname-merge": "^0.0.2",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.3.19",
     "immer": "^10.1.1",
-    "react-rnd": "^10.4.11"
+    "lodash-es": "^4.17.21",
+    "react-rnd": "^10.4.11",
+    "react-virtualized": "^9.22.5",
+    "tailwind-merge": "^2.4.0"
   },
   "devDependencies": {
     "@chrome-extension-boilerplate/hmr": "workspace:*",
     "@chrome-extension-boilerplate/tailwindcss-config": "workspace:*",
     "@chrome-extension-boilerplate/tsconfig": "workspace:*",
     "@chrome-extension-boilerplate/vite-config": "workspace:*",
-    "content-ui-inject": "link:/Users/river/dev/tsPool/content-ui-inject",
+    "content-ui-inject": "^0.0.5",
     "sass": "^1.77.8",
     "vite-plugin-svgr": "^4.2.0"
   }

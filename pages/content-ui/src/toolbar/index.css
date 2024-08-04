@@ -1,0 +1,8 @@
+#subtitle {
+  display: inline-block; /* 使容器宽度根据内容自适应 */
+  background-color: black !important; /* 黑色背景 */
+  color: white; /* 白色文字 */
+  padding: 0.5rem 1rem !important; /* 内边距 */
+  border-radius: 0.5rem; /* 圆角 */
+  font-size: 2rem !important; /* 3xl 字号 */
+}
