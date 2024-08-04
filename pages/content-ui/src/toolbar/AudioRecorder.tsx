@@ -77,7 +77,18 @@ const AudioRecorder = ({
     }
   };
 
+  const blobToAudioFile = blob => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64data = reader.result;
+      console.log('Download link:', base64data);
+    };
+    reader.readAsDataURL(blob);
+  };
+
   const sendAudioToApi = async (blob: Blob) => {
+    blobToAudioFile(blob);
+
     const formData = new FormData();
     formData.append('file', blob, 'openai.webm');
     formData.append('model', 'whisper-1');

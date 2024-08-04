@@ -1,5 +1,5 @@
 /*
-! tailwindcss v3.4.4 | MIT License | https://tailwindcss.com
+! tailwindcss v3.4.7 | MIT License | https://tailwindcss.com
 */
 
 /*
@@ -640,24 +640,16 @@ video {
   display: none;
 }
 
-.h-12 {
-  height: 3rem;
-}
-
-.h-full {
-  height: 100%;
+.h-8 {
+  height: 2rem;
 }
 
 .h-\[36px\] {
   height: 36px;
 }
 
-.h-8 {
-  height: 2rem;
-}
-
-.max-h-\[30px\] {
-  max-height: 30px;
+.h-full {
+  height: 100%;
 }
 
 .w-36 {
@@ -680,10 +672,6 @@ video {
   justify-content: center;
 }
 
-.rounded {
-  border-radius: 0.25rem;
-}
-
 .rounded-full {
   border-radius: 9999px;
 }
@@ -704,20 +692,6 @@ video {
 
 .p-2 {
   padding: 0.5rem;
-}
-
-.p-3 {
-  padding: 0.75rem;
-}
-
-.px-2 {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-
-.py-1 {
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
 }
 
 .text-center {
